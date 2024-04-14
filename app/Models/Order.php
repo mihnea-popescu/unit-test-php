@@ -30,4 +30,15 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function getTotalPriceAttribute(): float
+    {
+        $sum = 0;
+
+        foreach ($this->items as $item) {
+            $sum += $item->price * $item->quantity;
+        }
+
+        return $sum;
+    }
 }
