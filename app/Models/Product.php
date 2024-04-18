@@ -20,4 +20,15 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /**
+     * Get the correct price of the product
+     * Between sale price and regular price
+     *
+     * @return float
+     */
+    public function getPrice(): float
+    {
+        return $this->sale_price ? ($this->sale_price < $this->price ? $this->sale_price : $this->price) : $this->price;
+    }
 }

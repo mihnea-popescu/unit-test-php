@@ -22,7 +22,7 @@ class OrderItemFactory extends Factory
         return [
             'product_id' => $product->id,
             'quantity' => rand(1, 5),
-            'price' => $product->sale_price ? (rand(0, 1) ? $product->price : $product->sale_price) : $product->price,
+            'price' => $product->getPrice(),
         ];
     }
 }
