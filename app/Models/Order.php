@@ -21,6 +21,11 @@ class Order extends Model
         self::ORDER_STATUS_FINISHED
     ];
 
+    protected $fillable = [
+        'user_id',
+        'status'
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

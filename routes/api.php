@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Models\Category;
@@ -21,3 +22,11 @@ Route::prefix('product')->controller(ProductController::class)->name('product.')
 Route::prefix('user')->controller(UserController::class)->name('user.')->group(function () {
     Route::get('{user}/orders', 'orders')->name('orders');
 });
+
+Route::prefix('order')
+    ->controller(OrderController::class)
+    ->name('order.')
+    ->group(function () {
+        Route::put('/', 'store')
+            ->name('store');
+    });
