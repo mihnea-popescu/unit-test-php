@@ -9,6 +9,8 @@ use Illuminate\Database\Seeder;
 
 class OrderItemSeeder extends Seeder
 {
+    use WithoutModelEvents;
+
     /**
      * Run the database seeds.
      */
