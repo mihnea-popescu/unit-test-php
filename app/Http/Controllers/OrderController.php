@@ -9,51 +9,34 @@ use App\Models\Order;
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreOrderRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
+     * Display the specified order.
      */
     public function show(Order $order)
     {
-        //
+        return $order;
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Update the specified order in storage.
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
-        //
+        $newStatus = $request->get('status');
+
+        // Do not allow an order to go back in status
+        if ($newStatus === Order::ORDER_STATUS_INITIAL && in_array($order->status, [Order::ORDER_STATUS_CANCELED, Order::ORDER_STATUS_FINISHED]) || $newStatus === Order::ORDER_STATUS_CANCELED && $order->status === Order::ORDER_STATUS_FINISHED) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Invalid status change.'
+            ], 400);
+        }
+
+        $order->status = $newStatus;
+        $order->save();
+
+        return [
+            'success' => true
+        ];
     }
 
     /**
@@ -61,6 +44,6 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        //
-    }
+        //
+    }
 }

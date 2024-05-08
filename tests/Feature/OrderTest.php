@@ -11,6 +11,8 @@ use App\Order\OrderCreator;
 use App\Order\OrderItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
+use Illuminate\Testing\Fluent\AssertableJson;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -56,7 +58,7 @@ class OrderTest extends TestCase
         $order = $creator->create(
             $user->id,
             $products
-                ->map(function(Product $product) {
+                ->map(function (Product $product) {
                     $quantity = fake()->numberBetween(1, $product->stock);
                     return new OrderItem($product->id, $quantity);
                 })
@@ -104,11 +106,87 @@ class OrderTest extends TestCase
         $creator->create(
             $user->id,
             $products
-                ->map(function(Product $product) {
+                ->map(function (Product $product) {
                     $quantity = fake()->numberBetween($product->stock + 1, PHP_INT_MAX);
                     return new OrderItem($product->id, $quantity);
                 })
                 ->all()
         );
     }
+
+    public function test_get_order(): void
+    {
+        $order = Order::inRandomOrder()->first();
+
+        $response = $this->get(route('order.show', ['order' => $order->id]));
+
+        $response
+            ->assertStatus(200)
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $json->where('user_id', $order->user_id)
+                    ->where('id', $order->id)
+                    ->where('status', $order->status)
+                    ->etc()
+            );
+    }
+
+    public function test_update_order(): void
+    {
+        $order = Order::inRandomOrder()->first();
+
+        $data = [
+            'status' => Order::ORDER_STATUS_FINISHED
+        ];
+
+        $response = $this->patch(route('order.update', ['order' => $order->id]), $data);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson(
+                fn (AssertableJson $json) => $json->where('success', true)->etc()
+            );
+    }
+
+    public function test_update_order_error_no_data(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $order = Order::inRandomOrder()->first();
+
+        $response = $this->patch(route('order.update', ['order' => $order->id]), []);
+
+        // Because user is not authenticated
+        $response->assertStatus(302)
+            ->assertJsonValidationErrorFor('status');
+    }
+
+    public function test_update_order_error_finished_new_status_canceled(): void
+    {
+        $order = Order::inRandomOrder()->where('status', Order::ORDER_STATUS_FINISHED)->first();
+        $data = [
+            'status' => Order::ORDER_STATUS_CANCELED,
+        ];
+
+        $response = $this->patch(route('order.update', ['order' => $order->id]), $data);
+
+        $response->assertStatus(400)
+            ->assertJson(
+                fn (AssertableJson $json) => $json->where('success', false)->where('error', 'Invalid status change.')->etc()
+            );
+    }
+
+    public function test_update_order_error_finished_new_status_initial(): void
+    {
+        $order = Order::inRandomOrder()->where('status', Order::ORDER_STATUS_FINISHED)->first();
+        $data = [
+            'status' => Order::ORDER_STATUS_INITIAL,
+        ];
+
+        $response = $this->patch(route('order.update', ['order' => $order->id]), $data);
+
+        $response->assertStatus(400)->assertJson(
+            fn (AssertableJson $json) => $json->where('success', false)->where('error', 'Invalid status change.')->etc()
+        );;
+    }
 }

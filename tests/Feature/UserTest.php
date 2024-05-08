@@ -12,14 +12,17 @@ class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_orders(): void {
+    public function test_orders(): void
+    {
         $user = User::inRandomOrder()->first();
 
-        $response = $this->get("api/user/{$user->id}/orders");
+        $response = $this->get(route('user.orders', ['user' => $user->id]));
         $response
             ->assertStatus(200)
-            ->assertJson(fn (AssertableJson $json) =>
-                $json->each(fn (AssertableJson $json) =>
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $json->each(
+                    fn (AssertableJson $json) =>
                     $json->where('user_id', $user->id)->etc()
                 )
             )
@@ -31,6 +34,6 @@ class UserTest extends TestCase
                         ]
                     ]
                 ]
-            ]);
-    }
+            ]);
+    }
 }

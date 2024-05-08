@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Order;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOrderRequest extends FormRequest
 {
@@ -11,7 +13,8 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // Authorize all requests
+        return true;
     }
 
     /**
@@ -22,7 +25,7 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-        ];
-    }
+            'status' => ['required', Rule::in(Order::ORDER_STATUS)],
+        ];
+    }
 }

@@ -27,7 +27,7 @@ class CategoryTest extends TestCase
      */
     public function test_get_categories_list(): void
     {
-        $response = $this->get('api/');
+        $response = $this->get(route('category.list'));
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -40,5 +40,5 @@ class CategoryTest extends TestCase
             ]
         ]);
         $response->assertJsonCount(4);
-    }
+    }
 }
