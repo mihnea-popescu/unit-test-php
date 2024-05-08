@@ -187,6 +187,6 @@ class OrderTest extends TestCase
 
         $response->assertStatus(400)->assertJson(
             fn (AssertableJson $json) => $json->where('success', false)->where('error', 'Invalid status change.')->etc()
-        );;
-    }
+        );
+    }
 }

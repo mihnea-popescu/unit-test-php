@@ -33,4 +33,4 @@ Route::prefix('order')
 
         Route::patch('{order}', 'update')
             ->name('update');
-    });
+    });

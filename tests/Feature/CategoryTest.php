@@ -40,5 +40,5 @@ class CategoryTest extends TestCase
             ]
         ]);
         $response->assertJsonCount(4);
-    }
+    }
 }

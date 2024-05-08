@@ -34,6 +34,6 @@ class UserTest extends TestCase
                         ]
                     ]
                 ]
-            ]);
-    }
+            ]);
+    }
 }

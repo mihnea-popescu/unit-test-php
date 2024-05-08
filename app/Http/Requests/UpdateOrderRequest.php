@@ -26,6 +26,6 @@ class UpdateOrderRequest extends FormRequest
     {
         return [
             'status' => ['required', Rule::in(Order::ORDER_STATUS)],
-        ];
-    }
+        ];
+    }
 }
