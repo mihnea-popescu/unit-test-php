@@ -38,12 +38,4 @@ class OrderController extends Controller
             'success' => true
         ];
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
-    }
 }

@@ -15,6 +15,8 @@ Route::prefix('category')->controller(CategoryController::class)->name('category
 
 Route::prefix('product')->controller(ProductController::class)->name('product.')->group(function () {
     Route::get('{product}', 'show')->name('show');
+
+    Route::patch('{product}', 'update')->name('update');
 });
 
 Route::prefix('user')->controller(UserController::class)->name('user.')->group(function () {

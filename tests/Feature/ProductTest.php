@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\Fluent\AssertableJson;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class ProductTest extends TestCase
@@ -81,5 +84,61 @@ class ProductTest extends TestCase
         $product->refresh();
 
         $this->assertTrue($previousQuantity == ($orderItem->quantity + $product->stock));
+    }
+
+    public function test_product_update(): void
+    {
+        $product = Product::factory()->create();
+
+        $newDetails = [
+            'category_id' => Category::inRandomOrder()->first()->id,
+            'name' => 'Product test #1',
+            'description' => 'Product description test #1',
+            'stock' => 15,
+            'price' => 14.93,
+            'sale_price' => 13.94,
+        ];
+
+        $response = $this->patch(route('product.update', ['product' => $product->id]), $newDetails);
+
+        $response->assertStatus(200)
+            ->assertJson(
+                fn (AssertableJson $json) =>
+                $json->where('category_id', $newDetails['category_id'])
+                    ->where('name', $newDetails['name'])
+                    ->where('description', $newDetails['description'])
+                    ->where('stock', $newDetails['stock'])
+                    ->where('price', $newDetails['price'])
+                    ->where('sale_price', $newDetails['sale_price'])
+                    ->etc()
+            );
+    }
+
+    public function test_product_update_error_validation(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $product = Product::factory()->create();
+
+        $newDetails = [
+            'category_id' => -1,
+            'name' => 'P',
+            'description' => '#',
+            'stock' => -23,
+            'price' => -23.23232,
+            'sale_price' => -0.000001,
+        ];
+
+        $response = $this->patch(route('product.update', ['product' => $product->id]), $newDetails);
+
+        $response->assertStatus(302)
+            ->assertJsonValidationErrors([
+                'category_id',
+                'name',
+                'description',
+                'stock',
+                'price',
+                'sale_price'
+            ]);
     }
 }
