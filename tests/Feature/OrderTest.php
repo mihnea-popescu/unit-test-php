@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Order\OrderCreator;
 use App\Order\OrderItem;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -66,6 +67,33 @@ class OrderTest extends TestCase
         );
 
         $this->assertTrue($order->id > 0);
+    }
+
+    public function test_order_store_invalid_user_id(): void
+    {
+        $this->expectException(Exception::class);
+
+        $totalProducts = Product::query()
+            ->where('stock', '>', 0)
+            ->count();
+        $productsCount = fake()->numberBetween(1, $totalProducts);
+
+        /** @var Collection<Product> $products */
+        $products = Product::query()
+            ->inRandomOrder()
+            ->limit($productsCount)
+            ->get();
+
+        $creator = app('order.creator');
+        $creator->create(
+            -1, // Invalid user id
+            $products
+                ->map(function (Product $product) {
+                    $quantity = fake()->numberBetween(1, $product->stock);
+                    return new OrderItem($product->id, $quantity);
+                })
+                ->all()
+        );
     }
 
     public function test_order_store_invalid_products(): void

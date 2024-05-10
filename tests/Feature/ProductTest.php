@@ -30,6 +30,31 @@ class ProductTest extends TestCase
     }
 
     /**
+     * Get a product
+     */
+    public function test_get_product(): void
+    {
+        $product = Product::factory()->create();
+
+        $response = $this->get(route('product.show', ['product' => $product->id]));
+
+        $response->assertStatus(200);
+
+        $response->assertJson(
+            fn (AssertableJson $json) =>
+            $json
+                ->where('id', $product->id)
+                ->where('category_id', $product->category_id)
+                ->where('name', $product->name)
+                ->where('description', $product->description)
+                ->where('stock', $product->stock)
+                ->where('price', $product->price)
+                ->where('sale_price', $product->sale_price)
+                ->etc()
+        );
+    }
+
+    /**
      * Test product's sale price
      */
     public function test_product_get_sale_price(): void

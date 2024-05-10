@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class CategoryTest extends TestCase
@@ -40,5 +41,30 @@ class CategoryTest extends TestCase
             ]
         ]);
         $response->assertJsonCount(4);
+    }
+
+    public function test_get_category(): void
+    {
+        $categ = Category::inRandomOrder()->first();
+
+        $response = $this->get(route('category.show', ['category' => $categ->id]));
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'id',
+                'name',
+                'description',
+                'products' => [
+                    '*' => [
+                        'id', 'name', 'price', 'sale_price'
+                    ]
+                ]
+            ])
+            ->assertJson(
+                fn (AssertableJson $json) => $json
+                    ->where('id', $categ->id)
+                    ->where('name', $categ->name)
+                    ->etc()
+            );
     }
 }
