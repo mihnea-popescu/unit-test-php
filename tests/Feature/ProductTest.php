@@ -80,6 +80,16 @@ class ProductTest extends TestCase
         $this->assertTrue($product->getPrice() == 5);
     }
 
+    public function test_product_get_price_sale_price_higher(): void
+    {
+        $product = Product::factory()->create();
+
+        $product->sale_price = 10;
+        $product->price = 5;
+
+        $this->assertTrue($product->getPrice() == 5);
+    }
+
     /**
      * Test products updating stock
      * (Stock update is in OrderItemObserver)
@@ -147,7 +157,7 @@ class ProductTest extends TestCase
 
         $newDetails = [
             'category_id' => -1,
-            'name' => 'P',
+            'name' => null,
             'description' => '#',
             'stock' => -23,
             'price' => -23.23232,
@@ -165,5 +175,99 @@ class ProductTest extends TestCase
                 'price',
                 'sale_price'
             ]);
+    }
+
+    public function test_product_update_category_exists(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $product = Product::factory()->create();
+
+        $newDetails = [
+            'category_id' => 99999999999999999999,
+        ];
+
+        $response = $this->patch(route('product.update', ['product' => $product->id]), $newDetails);
+
+        $response->assertStatus(302)
+            ->assertJsonValidationErrors([
+                'category_id',
+            ]);
+    }
+
+    public function test_product_update_name_string(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $product = Product::factory()->create();
+
+        $newDetails = [
+            'name' => 23,
+        ];
+
+        $response = $this->patch(route('product.update', ['product' => $product->id]), $newDetails);
+
+        $response->assertStatus(302)
+            ->assertJsonValidationErrors(['name']);
+    }
+
+    public function test_product_update_description_nullable(): void
+    {
+        $product = Product::factory()->create();
+
+        $newDetails = [
+            'description' => null,
+        ];
+
+        $response = $this->patch(route('product.update', ['product' => $product->id]), $newDetails);
+
+        $response->assertStatus(200);
+
+        $this->assertModelExists(Product::where('id', $product->id)->whereNull('description')->first());
+    }
+
+    public function test_product_update_stock_price_sale_price_integer(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $product = Product::factory()->create();
+
+        $newDetails = [
+            'stock' => 23.23,
+            'price' => 23.23,
+            'sale_price' => 23.24,
+        ];
+
+        $response = $this->patch(route('product.update', ['product' => $product->id]), $newDetails);
+
+        $response->assertStatus(302)
+            ->assertJsonValidationErrors(['stock', 'price', 'sale_price']);
+
+
+        $newDetails = [
+            'stock' => "0x539",
+            'price' => "0x539",
+            'sale_price' => "0x539",
+        ];
+
+        $response = $this->patch(route('product.update', ['product' => $product->id]), $newDetails);
+
+        $response->assertStatus(302)
+            ->assertJsonValidationErrors(['stock', 'price', 'sale_price']);
+    }
+
+    public function test_product_sale_price_nullable(): void
+    {
+        $product = Product::factory()->create();
+
+        $newDetails = [
+            'sale_price' => null,
+        ];
+
+        $response = $this->patch(route('product.update', ['product' => $product->id]), $newDetails);
+
+        $response->assertStatus(200);
+
+        $this->assertModelExists(Product::where('id', $product->id)->whereNull('sale_price')->first());
     }
 }

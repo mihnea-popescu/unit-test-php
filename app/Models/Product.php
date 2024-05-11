@@ -26,6 +26,6 @@ class Product extends Model
      */
     public function getPrice(): float
     {
-        return $this->sale_price ? ($this->sale_price < $this->price ? $this->sale_price : $this->price) : $this->price;
+        return $this->sale_price ? ($this->sale_price <= $this->price ? $this->sale_price : $this->price) : $this->price;
     }
 }

@@ -67,6 +67,35 @@ class OrderTest extends TestCase
         );
 
         $this->assertTrue($order->id > 0);
+        $this->assertTrue($order->items()->count() == $products->count());
+    }
+
+    public function test_order_store_product_quantity_equals_stock(): void
+    {
+        $user = User::inRandomOrder()->first();
+
+        $totalProducts = Product::query()
+            ->where('stock', '>', 0)
+            ->count();
+        $productsCount = fake()->numberBetween(1, $totalProducts);
+
+        /** @var Collection<Product> $products */
+        $products = Product::query()
+            ->inRandomOrder()
+            ->limit($productsCount)
+            ->get();
+
+        $creator = app('order.creator');
+        $order = $creator->create(
+            $user->id,
+            $products
+                ->map(function (Product $product) {
+                    return new OrderItem($product->id, $product->stock);
+                })
+                ->all()
+        );
+
+        $this->assertModelExists($order);
     }
 
     public function test_order_store_invalid_user_id(): void
@@ -174,6 +203,33 @@ class OrderTest extends TestCase
             ->assertJson(
                 fn (AssertableJson $json) => $json->where('success', true)->etc()
             );
+
+        // Verify the model has been updated in the db
+        $order->refresh();
+
+        $this->assertTrue($order->status == $data['status']);
+    }
+
+    public function test_update_order_initial_new_status_canceled(): void
+    {
+        $order = Order::inRandomOrder()->where('status', Order::ORDER_STATUS_INITIAL)->first();
+
+        $data = [
+            'status' => Order::ORDER_STATUS_CANCELED
+        ];
+
+        $response = $this->patch(route('order.update', ['order' => $order->id]), $data);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson(
+                fn (AssertableJson $json) => $json->where('success', true)->etc()
+            );
+
+        // Verify the model has been updated in the db
+        $order->refresh();
+
+        $this->assertTrue($order->status == $data['status']);
     }
 
     public function test_update_order_error_no_data(): void
@@ -206,7 +262,20 @@ class OrderTest extends TestCase
 
     public function test_update_order_error_finished_new_status_initial(): void
     {
+        // Test for order status finished
         $order = Order::inRandomOrder()->where('status', Order::ORDER_STATUS_FINISHED)->first();
+        $data = [
+            'status' => Order::ORDER_STATUS_INITIAL,
+        ];
+
+        $response = $this->patch(route('order.update', ['order' => $order->id]), $data);
+
+        $response->assertStatus(400)->assertJson(
+            fn (AssertableJson $json) => $json->where('success', false)->where('error', 'Invalid status change.')->etc()
+        );
+
+        // Test for order status canceled
+        $order = Order::inRandomOrder()->where('status', Order::ORDER_STATUS_CANCELED)->first();
         $data = [
             'status' => Order::ORDER_STATUS_INITIAL,
         ];
