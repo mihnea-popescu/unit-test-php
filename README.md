@@ -81,7 +81,7 @@ Ca librarie de testare am folosit <b>phpunit</b> fiind default in Laravel.
 Testele pentru categorii sunt concepute pentru a verifica corectitudinea funcțiilor legate de gestionarea categoriilor de produse din aplicație. 
 Aceste teste asigură că informațiile despre categorii sunt corect manipulabile și accesibile. Iată detalii despre fiecare test:
 
-- **categories exist**: Acest test verifică existența datelor în tabela de categorii. Se asigură că baza de date conține intrările așteptate pentru categorii, esențiale pentru funcționarea corectă a aplicației. Este crucial pentru a evita erorile legate de lipsa categoriilor atunci când utilizatorii sau alte componente ale aplicației încearcă să acceseze produsele categorizate.
+- `categories exist`: Acest test verifică existența datelor în tabela de categorii. Se asigură că baza de date conține intrările așteptate pentru categorii, esențiale pentru funcționarea corectă a aplicației. Este crucial pentru a evita erorile legate de lipsa categoriilor atunci când utilizatorii sau alte componente ale aplicației încearcă să acceseze produsele categorizate.
 
 - **get categories list**: Testează funcționalitatea de a recupera o listă a tuturor categoriilor disponibile, împreună cu produsele asociate fiecărei categorii. Acest test este vital pentru funcțiile de afișare a produselor pe categorii în interfața utilizator, asigurând că legăturile între categorii și produsele lor sunt corect reprezentate și că întregul set de date este accesibil.
 
