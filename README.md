@@ -1,9 +1,18 @@
 # Proiect Unit Testing în PHP
 
 ## Descriere
+Proiectul nostru de unit testing în PHP este conceput pentru a demonstra implementarea robustă a testelor automate în cadrul aplicațiilor moderne PHP. Scopul principal este de a asigura că toate componentele software funcționează așa cum este prevăzut, minimizând astfel riscurile de erori în producție și îmbunătățind calitatea generală a codului.
 
-Acest proiect este destinat demonstrării și implementării unit testing pentru aplicații PHP. 
-Proiectul include o serie de tabele pentru gestionarea utilizatorilor, sesiunilor, joburilor, produselor, comenzilor și multe altele.
+### Obiectivele Proiectului
+
+1. **Asigurarea Calității**: Prin testele unitare sistematice, proiectul vizează detectarea și remedierea problemelor înainte de lansarea în producție, contribuind astfel la un produs final de înaltă calitate.
+2. **Documentație Detaliată**: Fiecare aspect al aplicației este documentat în detaliu, oferind dezvoltatorilor și testatorilor înțelegerea necesară pentru a contribui și a utiliza proiectul eficient.
+3. **Extensibilitate**: Structura proiectului este gândită să faciliteze adăugarea de noi funcționalități și teste, permițând proiectului să crească și să se adapteze la noi cerințe.
+4. **Automatizare**: Maximizarea utilizării automatizării pentru a reduce nevoia de intervenție manuală în executarea testelor, sporind eficiența și consistența testelor.
+
+### Tehnologii și Unelte Utilizate
+
+Proiectul folosește PHPUnit, cea mai populară bibliotecă pentru unit testing în comunitatea PHP, datorită integrării sale strânse cu Laravel și alte framework-uri PHP. De asemenea, utilizăm Infection pentru testarea prin mutații pentru a evalua eficacitatea setului de teste, și Xdebug pentru analiza acoperirii codului. Aceste unelte sunt esențiale pentru a asigura că toate ramurile logice și cazurile de utilizare sunt acoperite de teste.
 
 ## Schema Bazei de Date
 
